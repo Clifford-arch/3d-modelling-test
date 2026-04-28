@@ -1,66 +1,113 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import { METAL_PRESETS, STONE_PRESETS, type MetalPreset, type StonePreset } from "@/components/presets";
+
+const JewelryViewer = dynamic(() => import("@/components/JewelryViewer"), { ssr: false });
+
+const DEFAULT_URL = "/models/ER-0001.glb";
+
+function Swatch({ color, label, selected, onClick }: {
+  color: string; label: string; selected: boolean; onClick: () => void;
+}) {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <button
+      title={label}
+      onClick={onClick}
+      style={{
+        width: 32, height: 32, borderRadius: "50%",
+        background: color,
+        border: selected ? "3px solid #222" : "2px solid #ccc",
+        cursor: "pointer", outline: "none", padding: 0,
+        boxShadow: selected ? "0 0 0 2px #fff inset" : "none",
+        transition: "border 0.15s",
+      }}
+    />
+  );
+}
+
+export default function Page() {
+  const [modelUrl, setModelUrl] = useState(DEFAULT_URL);
+  const [input, setInput] = useState(DEFAULT_URL);
+  const [metal, setMetal] = useState<MetalPreset>(METAL_PRESETS["Yellow Gold 18K"]);
+  const [stone, setStone] = useState<StonePreset>(STONE_PRESETS["White Diamond"]);
+
+  return (
+    <div style={{
+      minHeight: "100vh", background: "#f0f0f0",
+      display: "flex", flexDirection: "column", alignItems: "center",
+      justifyContent: "center", padding: 24, gap: 16,
+    }}>
+
+      {/* GLB input */}
+      <div style={{ display: "flex", gap: 8 }}>
+        <input
+          style={{
+            width: 360, padding: "8px 12px", borderRadius: 8,
+            background: "#fff", border: "1px solid #ddd",
+            color: "#222", fontSize: 13, outline: "none",
+          }}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && setModelUrl(input.trim())}
+          placeholder="GLB path or URL…"
         />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+        <button
+          onClick={() => setModelUrl(input.trim())}
+          style={{
+            padding: "8px 16px", borderRadius: 8, border: "none",
+            background: "#e0b84e", color: "#000", fontSize: 13,
+            fontWeight: 600, cursor: "pointer",
+          }}
+        >
+          Load
+        </button>
+      </div>
+
+      {/* Viewer card */}
+      <div style={{
+        width: 600, height: 600, borderRadius: 16,
+        background: "#fff", boxShadow: "0 8px 40px rgba(0,0,0,0.12)",
+        overflow: "hidden",
+      }}>
+        <JewelryViewer modelUrl={modelUrl} metal={metal} stone={stone} />
+      </div>
+
+      {/* Swatches */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 12, color: "#666", width: 42 }}>Metal</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            {Object.entries(METAL_PRESETS).map(([name, preset]) => (
+              <Swatch
+                key={name}
+                label={name}
+                color={preset.color}
+                selected={metal === preset}
+                onClick={() => setMetal(preset)}
+              />
+            ))}
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 12, color: "#666", width: 42 }}>Stone</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            {Object.entries(STONE_PRESETS).map(([name, preset]) => (
+              <Swatch
+                key={name}
+                label={name}
+                color={preset.color}
+                selected={stone === preset}
+                onClick={() => setStone(preset)}
+              />
+            ))}
+          </div>
         </div>
-      </main>
+
+      </div>
     </div>
   );
 }
