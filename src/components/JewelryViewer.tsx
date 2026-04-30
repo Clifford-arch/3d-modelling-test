@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, useGLTF, ContactShadows } from "@react-three/drei";
+import { OrbitControls, Environment, ContactShadows, useGLTF } from "@react-three/drei";
 import { Suspense, useEffect } from "react";
 import * as THREE from "three";
 import type { MetalPreset, StonePreset } from "./presets";
@@ -16,12 +16,12 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
       "glass", "transparent",
     ];
 
-    scene.traverse((node) => {
+    scene.traverse((node: THREE.Object3D) => {
       if (!(node instanceof THREE.Mesh)) return;
 
       const nodeName = node.name.toLowerCase();
       const matName = Array.isArray(node.material)
-        ? node.material.map((m) => m.name).join(" ").toLowerCase()
+        ? node.material.map((m: THREE.Material) => m.name).join(" ").toLowerCase()
         : (node.material as THREE.Material)?.name?.toLowerCase() ?? "";
 
       const isStone = STONE_KEYWORDS.some(
@@ -37,7 +37,13 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
           roughness: stone.roughness,
           metalness: 0,
           reflectivity: 1,
-          envMapIntensity: 2,
+          specularIntensity: 1.5,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.02,
+          attenuationColor: new THREE.Color(stone.attenuationColor),
+          attenuationDistance: 0.25,
+          flatShading: true,
+          envMapIntensity: 4.5,
         });
       } else {
         node.material = new THREE.MeshStandardMaterial({
@@ -47,6 +53,9 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
           envMapIntensity: 1.5,
         });
       }
+
+      node.castShadow = true;
+      node.receiveShadow = true;
     });
   }, [scene, metal, stone]);
 
@@ -63,11 +72,20 @@ export default function JewelryViewer({ modelUrl, metal, stone }: Props) {
   return (
     <Canvas
       camera={{ position: [0, 0, 3], fov: 45 }}
+      shadows
+      gl={{
+        toneMapping: THREE.ACESFilmicToneMapping,
+        outputColorSpace: THREE.SRGBColorSpace,
+        toneMappingExposure: 1.2,
+      }}
       style={{ width: "100%", height: "100%" }}
     >
+      <ambientLight intensity={0.6} color="#d6eaff" />
+      <directionalLight position={[5, 5, 5]} intensity={3} castShadow />
+      <directionalLight position={[-5, 5, -5]} intensity={2} color="#a8cfff" />
       <Suspense fallback={null}>
         <Model url={modelUrl} metal={metal} stone={stone} />
-        <Environment preset="studio" />
+        <Environment preset="apartment" background={false} />
         <ContactShadows opacity={0.4} blur={2} position={[0, -1.5, 0]} />
       </Suspense>
       <OrbitControls autoRotate autoRotateSpeed={1} enableZoom enablePan={false} />
