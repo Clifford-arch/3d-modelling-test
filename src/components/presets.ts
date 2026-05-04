@@ -8,14 +8,12 @@ export const METAL_PRESETS = {
 } as const;
 
 export const STONE_PRESETS = {
-  // Diamonds — tuned from glb.jsx (IOR 2.417, full transmission, clearcoat, flat facets)
-  "White Diamond":  { color: "#ffffff", attenuationColor: "#bfdfff", transmission: 1.0,  ior: 2.417, thickness: 2.5, roughness: 0.03, dispersion: 0.05  },
-  "Yellow Diamond": { color: "#f5e642", attenuationColor: "#f5e642", transmission: 0.95, ior: 2.417, thickness: 2.5, roughness: 0.03, dispersion: 0.05  },
-  // Coloured gemstones
-  "Blue Sapphire":  { color: "#1a3aff", attenuationColor: "#1a3aff", transmission: 0.85, ior: 1.77,  thickness: 2.0, roughness: 0.02, dispersion: 0.018 },
-  "Ruby":           { color: "#cc0020", attenuationColor: "#cc0020", transmission: 0.80, ior: 1.76,  thickness: 2.0, roughness: 0.02, dispersion: 0.018 },
-  "Emerald":        { color: "#00a050", attenuationColor: "#00a050", transmission: 0.78, ior: 1.58,  thickness: 2.0, roughness: 0.03, dispersion: 0.014 },
-  "Pink Sapphire":  { color: "#ff6fa8", attenuationColor: "#ff6fa8", transmission: 0.85, ior: 1.77,  thickness: 2.0, roughness: 0.02, dispersion: 0.018 },
+  "White Diamond":  { color: "#ffffff", attenuationColor: "#bfdfff", transmission: 1.0,  ior: 2.417, thickness: 2.5, roughness: 0,    dispersion: 5   },
+  "Yellow Diamond": { color: "#f5e642", attenuationColor: "#f5e642", transmission: 0.95, ior: 2.417, thickness: 2.5, roughness: 0,    dispersion: 5   },
+  "Blue Sapphire":  { color: "#1a3aff", attenuationColor: "#1a3aff", transmission: 0.85, ior: 1.77,  thickness: 2.0, roughness: 0.01, dispersion: 0.5 },
+  "Ruby":           { color: "#cc0020", attenuationColor: "#cc0020", transmission: 0.80, ior: 1.76,  thickness: 2.0, roughness: 0.01, dispersion: 0.5 },
+  "Emerald":        { color: "#00a050", attenuationColor: "#00a050", transmission: 0.78, ior: 1.58,  thickness: 2.0, roughness: 0.02, dispersion: 0.3 },
+  "Pink Sapphire":  { color: "#ff6fa8", attenuationColor: "#ff6fa8", transmission: 0.85, ior: 1.77,  thickness: 2.0, roughness: 0.01, dispersion: 0.5 },
 } as const;
 
 export type MetalPreset = typeof METAL_PRESETS[keyof typeof METAL_PRESETS];

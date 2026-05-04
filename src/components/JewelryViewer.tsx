@@ -2,6 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows, useGLTF } from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { Suspense, useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { MetalPreset, StonePreset } from "./presets";
@@ -43,9 +44,13 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
           clearcoat: 1.0,
           clearcoatRoughness: 0.02,
           attenuationColor: new THREE.Color(stone.attenuationColor),
-          attenuationDistance: 0.25,
+          attenuationDistance: 0.15,
+          iridescence: 0.3,
+          iridescenceIOR: 1.5,
           flatShading: true,
-          envMapIntensity: 4.5,
+          envMapIntensity: 2.5,
+          // @ts-ignore — dispersion added in Three.js r163
+          dispersion: stone.dispersion,
         });
       } else {
         node.material = new THREE.MeshStandardMaterial({
@@ -60,7 +65,6 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
       node.receiveShadow = true;
     });
 
-    // Box3 auto-scale + center (same approach as GlbViewer — proven to work)
     const box = new THREE.Box3().setFromObject(root);
     const size = new THREE.Vector3();
     box.getSize(size);
@@ -102,10 +106,13 @@ export default function JewelryViewer({ modelUrl, metal, stone }: Props) {
       <directionalLight position={[-5, 5, -5]} intensity={2} color="#a8cfff" />
       <Suspense fallback={null}>
         <Model url={modelUrl} metal={metal} stone={stone} />
-        <Environment preset="apartment" background={false} />
+        <Environment preset="studio" background={false} />
         <ContactShadows opacity={0.4} blur={2} position={[0, -1.5, 0]} />
       </Suspense>
       <OrbitControls enableZoom enablePan={false} />
+      <EffectComposer>
+        <Bloom intensity={0.15} luminanceThreshold={0.92} luminanceSmoothing={0.9} mipmapBlur />
+      </EffectComposer>
     </Canvas>
   );
 }
