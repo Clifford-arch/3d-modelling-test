@@ -7,7 +7,7 @@ import { METAL_PRESETS, STONE_PRESETS, type MetalPreset, type StonePreset } from
 
 const JewelryViewer = dynamic(() => import("@/components/JewelryViewer"), { ssr: false });
 
-const DEFAULT_URL = "/models/ER-0001.glb";
+const DEFAULT_URL = "/models/earring.glb";
 
 function Swatch({ color, label, selected, onClick }: {
   color: string; label: string; selected: boolean; onClick: () => void;
@@ -46,12 +46,9 @@ export default function Page() {
       display: "flex", flexDirection: "column", alignItems: "center",
       justifyContent: "center", padding: 24, gap: 16,
     }}>
-
-         {/* Rhino link */}
-      {/* <div style={{ display: "flex", gap: 16 }}>
-        <Link href="/stl" style={{ fontSize: 12, color: "#999" }}>→ STL viewer</Link>
-        <Link href="/compare" style={{ fontSize: 12, color: "#999" }}>→ Compare (original glb.jsx)</Link>
-      </div> */}
+      <div style={{ display: "flex", gap: 16 }}>
+        <Link href="/compare" style={{ fontSize: 12, color: "#999" }}>→ enhanced viewer</Link>
+      </div>
 
       {/* GLB input */}
       <div style={{ display: "flex", gap: 8 }}>
@@ -77,7 +74,6 @@ export default function Page() {
           Load
         </button>
       </div>
-   
 
       {/* Viewer card */}
       <div style={{

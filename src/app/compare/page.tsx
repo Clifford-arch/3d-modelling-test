@@ -3,16 +3,11 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { METAL_PRESETS, STONE_PRESETS, type MetalPreset, type StonePreset } from "@/components/presets";
 
-const GlbViewer = dynamic(() => import("@/components/GlbViewer"), { ssr: false });
+const EnhancedViewer = dynamic(() => import("@/components/EnhancedViewer"), { ssr: false });
 
 const DEFAULT_URL = "/models/ER-0001.glb";
-
-const GOLD_OPTIONS = [
-  { key: "rose",   label: "Rose Gold",   color: "#B76E79" },
-  { key: "yellow", label: "Yellow Gold", color: "#FFD700" },
-  { key: "white",  label: "White Gold",  color: "#E5E4E2" },
-];
 
 function encodePath(raw: string) {
   const parts = raw.trim().split("/");
@@ -20,33 +15,49 @@ function encodePath(raw: string) {
   return [...parts, encodeURIComponent(filename)].join("/");
 }
 
+function Swatch({ color, label, selected, onClick }: {
+  color: string; label: string; selected: boolean; onClick: () => void;
+}) {
+  return (
+    <button
+      title={label}
+      onClick={onClick}
+      style={{
+        width: 28, height: 28, borderRadius: "50%",
+        background: color,
+        border: selected ? "3px solid #fff" : "2px solid #555",
+        cursor: "pointer", outline: "none", padding: 0,
+        boxShadow: selected ? "0 0 0 2px #333 inset" : "none",
+        transition: "border 0.15s",
+      }}
+    />
+  );
+}
+
 export default function ComparePage() {
   const [modelUrl, setModelUrl] = useState(DEFAULT_URL);
-  const [input, setInput] = useState(DEFAULT_URL);
-  const [color, setColor] = useState("rose");
+  const [input, setInput]       = useState(DEFAULT_URL);
+  const [metal, setMetal]       = useState<MetalPreset>(METAL_PRESETS["Yellow Gold 18K"]);
+  const [stone, setStone]       = useState<StonePreset>(STONE_PRESETS["White Diamond"]);
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#0a1833",
+      minHeight: "100vh", background: "#111",
       display: "flex", flexDirection: "column", alignItems: "center",
       justifyContent: "center", padding: 24, gap: 16,
     }}>
 
-      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        <Link href="/" style={{ color: "#888", fontSize: 12 }}>← Our viewer</Link>
+        <Link href="/" style={{ color: "#888", fontSize: 12 }}>← Standard viewer</Link>
         <span style={{ color: "#333", fontSize: 12 }}>|</span>
-        <Link href="/stl" style={{ color: "#888", fontSize: 12 }}>STL viewer</Link>
-        <span style={{ color: "#333", fontSize: 12 }}>|</span>
-        <span style={{ color: "#aaa", fontSize: 13, fontWeight: 600 }}>Original glb.jsx</span>
+        <span style={{ color: "#e0b84e", fontSize: 13, fontWeight: 600 }}>Enhanced</span>
       </div>
 
-      {/* Input */}
       <div style={{ display: "flex", gap: 8 }}>
         <input
           style={{
             width: 360, padding: "8px 12px", borderRadius: 8,
-            background: "#112244", border: "1px solid #224",
+            background: "#222", border: "1px solid #444",
             color: "#eee", fontSize: 13, outline: "none",
           }}
           value={input}
@@ -66,39 +77,38 @@ export default function ComparePage() {
         </button>
       </div>
 
-      {/* Card */}
       <div style={{
         width: 600, height: 600, borderRadius: 16,
-        background: "#0a1833", boxShadow: "0 8px 40px rgba(0,0,0,0.5)",
+        background: "#1a1a1a", boxShadow: "0 8px 40px rgba(0,0,0,0.5)",
         overflow: "hidden",
       }}>
-        <GlbViewer modelUrl={modelUrl} color={color} />
+        <EnhancedViewer modelUrl={modelUrl} metal={metal} stone={stone} />
       </div>
 
-      {/* Gold buttons */}
-      <div style={{
-        display: "flex", gap: 10,
-        background: "rgba(250,250,245,0.08)",
-        backdropFilter: "blur(10px)",
-        padding: "10px 16px", borderRadius: 12,
-      }}>
-        {GOLD_OPTIONS.map((opt) => (
-          <button
-            key={opt.key}
-            onClick={() => setColor(opt.key)}
-            style={{
-              padding: "6px 16px", borderRadius: 8, border: "none",
-              fontWeight: 600, fontSize: 13, cursor: "pointer",
-              background: color === opt.key ? "#fff" : "rgba(255,255,255,0.12)",
-              color: color === opt.key ? "#000" : "#ccc",
-              transition: "all 0.2s",
-            }}
-          >
-            {opt.label}
-          </button>
-        ))}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 12, color: "#666", width: 42 }}>Metal</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            {Object.entries(METAL_PRESETS).map(([name, preset]) => (
+              <Swatch key={name} label={name} color={preset.color}
+                selected={metal === preset} onClick={() => setMetal(preset)} />
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 12, color: "#666", width: 42 }}>Stone</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            {Object.entries(STONE_PRESETS).map(([name, preset]) => (
+              <Swatch key={name} label={name} color={preset.color}
+                selected={stone === preset} onClick={() => setStone(preset)} />
+            ))}
+          </div>
+        </div>
       </div>
 
+      <p style={{ fontSize: 11, color: "#444", margin: 0 }}>
+        Three.js · Poly Haven HDRI · SSAO · Vignette · Bloom
+      </p>
     </div>
   );
 }
