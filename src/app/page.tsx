@@ -46,9 +46,7 @@ export default function Page() {
       display: "flex", flexDirection: "column", alignItems: "center",
       justifyContent: "center", padding: 24, gap: 16,
     }}>
-      <div style={{ display: "flex", gap: 16 }}>
-        <Link href="/compare" style={{ fontSize: 12, color: "#999" }}>→ enhanced viewer</Link>
-      </div>
+      <Link href="/compare" style={{ fontSize: 12, color: "#999" }}>→ Enhanced viewer</Link>
 
       {/* GLB input */}
       <div style={{ display: "flex", gap: 8 }}>
