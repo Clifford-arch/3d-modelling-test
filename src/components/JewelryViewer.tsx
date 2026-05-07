@@ -146,6 +146,7 @@ export default function JewelryViewer({ modelUrl, metal, stone }: Props) {
       <Canvas
         camera={{ position: DEFAULT_POSITION, fov: 45 }}
         shadows
+        resize={{ debounce: 50 }}
         gl={{
           toneMapping: THREE.NeutralToneMapping,
           outputColorSpace: THREE.SRGBColorSpace,

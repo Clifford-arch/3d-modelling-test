@@ -41,7 +41,9 @@ export default function SceneControls({
 
     const target = targetRef.current;
     camera.position.lerp(target, Math.min(1, 6 * delta));
-    controlsRef.current.update();
+    // Do NOT call controls.update() here — drei already calls it at priority -1
+    // (before this frame at priority 0). A second call applies damping twice,
+    // causing the camera to oscillate visibly.
 
     if (camera.position.distanceTo(target) < 0.001) {
       camera.position.copy(target);
