@@ -1,16 +1,22 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, ContactShadows, useGLTF } from "@react-three/drei";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
-import { Suspense, useEffect, useRef } from "react";
+import { Environment, ContactShadows, useGLTF } from "@react-three/drei";
+import { EffectComposer, Bloom, SMAA, Vignette } from "@react-three/postprocessing";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { MetalPreset, StonePreset } from "./presets";
+import SceneControls from "./SceneControls";
+import ViewerToolbar from "./ViewerToolbar";
 
 const STONE_KEYWORDS = [
   "diamond", "stone", "crystal", "brilliant",
   "sapphire", "ruby", "emerald", "melee",
 ];
+
+const HDRI_URL = "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/photo_studio_01_1k.hdr";
+
+const DEFAULT_POSITION: [number, number, number] = [0, 0, 3];
 
 function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: StonePreset }) {
   const { scene } = useGLTF(url);
@@ -48,7 +54,7 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
           iridescence: 0.3,
           iridescenceIOR: 1.5,
           flatShading: true,
-          envMapIntensity: 2.5,
+          envMapIntensity: 3.0,
           // @ts-ignore — dispersion added in Three.js r163
           dispersion: stone.dispersion,
         });
@@ -56,8 +62,8 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
         node.material = new THREE.MeshStandardMaterial({
           color: new THREE.Color(metal.color),
           metalness: metal.metalness,
-          roughness: metal.roughness,
-          envMapIntensity: 1.5,
+          roughness: metal.roughness * 0.3,
+          envMapIntensity: 2.5,
         });
       }
 
@@ -90,29 +96,94 @@ interface Props {
 }
 
 export default function JewelryViewer({ modelUrl, metal, stone }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [targetPosition, setTargetPosition] = useState<[number, number, number] | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const wasPlayingRef = useRef(true);
+
+  useEffect(() => {
+    const fn = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", fn);
+    return () => document.removeEventListener("fullscreenchange", fn);
+  }, []);
+
+  const handleDragStart = useCallback(() => {
+    wasPlayingRef.current = isPlaying;
+    setIsPlaying(false);
+  }, [isPlaying]);
+
+  const handleDragEnd = useCallback(() => {
+    if (wasPlayingRef.current) setIsPlaying(true);
+  }, []);
+
+  const handleTogglePlay = useCallback(() => {
+    setIsPlaying((p) => {
+      wasPlayingRef.current = !p;
+      return !p;
+    });
+  }, []);
+
+  const handleAnimationComplete = useCallback(() => {
+    setTargetPosition(null);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setTargetPosition(DEFAULT_POSITION);
+  }, []);
+
+  const handleToggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+
   return (
-    <Canvas
-      camera={{ position: [0, 0, 3], fov: 45 }}
-      shadows
-      gl={{
-        toneMapping: THREE.ACESFilmicToneMapping,
-        outputColorSpace: THREE.SRGBColorSpace,
-        toneMappingExposure: 1.2,
-      }}
-      style={{ width: "100%", height: "100%" }}
-    >
-      <ambientLight intensity={0.6} color="#d6eaff" />
-      <directionalLight position={[5, 5, 5]} intensity={3} castShadow />
-      <directionalLight position={[-5, 5, -5]} intensity={2} color="#a8cfff" />
-      <Suspense fallback={null}>
-        <Model url={modelUrl} metal={metal} stone={stone} />
-        <Environment preset="studio" background={false} />
-        <ContactShadows opacity={0.4} blur={2} position={[0, -1.5, 0]} />
-      </Suspense>
-      <OrbitControls enableZoom enablePan={false} />
-      <EffectComposer>
-        <Bloom intensity={0.15} luminanceThreshold={0.92} luminanceSmoothing={0.9} mipmapBlur />
-      </EffectComposer>
-    </Canvas>
+    <div ref={containerRef} style={{ position: "relative", width: "100%", height: "100%" }}>
+      <Canvas
+        camera={{ position: DEFAULT_POSITION, fov: 45 }}
+        shadows
+        gl={{
+          toneMapping: THREE.NeutralToneMapping,
+          outputColorSpace: THREE.SRGBColorSpace,
+          toneMappingExposure: 1.1,
+        }}
+        style={{ width: "100%", height: "100%" }}
+      >
+        <ambientLight intensity={0.3} color="#e8f0ff" />
+        <directionalLight position={[5, 5, 5]} intensity={4} castShadow color="#fff8f0" />
+        <directionalLight position={[-4, 2, 3]} intensity={1.5} color="#b0ccff" />
+        <directionalLight position={[0, 3, -5]} intensity={1.5} color="#ffffff" />
+        <Suspense fallback={null}>
+          <Model url={modelUrl} metal={metal} stone={stone} />
+          <Environment files={HDRI_URL} background={false} />
+          <ContactShadows opacity={0.4} blur={2} position={[0, -1.5, 0]} />
+        </Suspense>
+        <SceneControls
+          isPlaying={isPlaying}
+          targetPosition={targetPosition}
+          onAnimationComplete={handleAnimationComplete}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        />
+        <EffectComposer>
+          <SMAA />
+          <Vignette eskil={false} offset={0.5} darkness={0.5} />
+          <Bloom intensity={0.2} luminanceThreshold={0.85} luminanceSmoothing={0.9} mipmapBlur />
+        </EffectComposer>
+      </Canvas>
+      <ViewerToolbar
+        isPlaying={isPlaying}
+        isFullscreen={isFullscreen}
+        onTogglePlay={handleTogglePlay}
+        onPreset={setTargetPosition}
+        onReset={handleReset}
+        onToggleFullscreen={handleToggleFullscreen}
+        defaultPosition={DEFAULT_POSITION}
+      />
+    </div>
   );
 }
