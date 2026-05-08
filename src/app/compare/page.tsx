@@ -9,6 +9,12 @@ const EnhancedViewer = dynamic(() => import("@/components/EnhancedViewer"), { ss
 
 const DEFAULT_URL = "/models/ER-0001.glb";
 
+const QUICK_MODELS = [
+  { label: "Earring",      url: "/models/earring.glb" },
+  { label: "Ring",         url: "/models/ring.glb" },
+  { label: "ER-0001",      url: "/models/ER-0001.glb" }
+];
+
 function encodePath(raw: string) {
   const parts = raw.trim().split("/");
   const filename = parts.pop() ?? "";
@@ -51,6 +57,25 @@ export default function ComparePage() {
         <Link href="/" style={{ color: "#888", fontSize: 12 }}>← Standard viewer</Link>
         <span style={{ color: "#333", fontSize: 12 }}>|</span>
         <span style={{ color: "#e0b84e", fontSize: 13, fontWeight: 600 }}>Enhanced</span>
+      </div>
+
+      {/* Quick model buttons */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
+        {QUICK_MODELS.map(({ label, url }) => (
+          <button
+            key={url}
+            onClick={() => { setModelUrl(url); setInput(url); }}
+            style={{
+              padding: "6px 14px", borderRadius: 20, border: "1px solid #333",
+              background: modelUrl === url ? "#e0b84e" : "#1a1a1a",
+              color: modelUrl === url ? "#000" : "#aaa",
+              fontSize: 12, fontWeight: 600, cursor: "pointer",
+              transition: "background 0.15s, color 0.15s",
+            }}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       <div style={{ display: "flex", gap: 8 }}>

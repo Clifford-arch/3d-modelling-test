@@ -9,6 +9,12 @@ const JewelryViewer = dynamic(() => import("@/components/JewelryViewer"), { ssr:
 
 const DEFAULT_URL = "/models/earring.glb";
 
+const QUICK_MODELS = [
+  { label: "Earring",      url: "/models/earring.glb" },
+  { label: "Ring",         url: "/models/ring.glb" },
+  { label: "ER-0001",      url: "/models/ER-0001.glb" }
+];
+
 function Swatch({ color, label, selected, onClick }: {
   color: string; label: string; selected: boolean; onClick: () => void;
 }) {
@@ -47,6 +53,25 @@ export default function Page() {
       justifyContent: "center", padding: 24, gap: 16,
     }}>
       <Link href="/compare" style={{ fontSize: 12, color: "#999" }}>→ Enhanced viewer</Link>
+
+      {/* Quick model buttons */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
+        {QUICK_MODELS.map(({ label, url }) => (
+          <button
+            key={url}
+            onClick={() => { setModelUrl(url); setInput(url); }}
+            style={{
+              padding: "6px 14px", borderRadius: 20, border: "none",
+              background: modelUrl === url ? "#e0b84e" : "#e0e0e0",
+              color: modelUrl === url ? "#000" : "#555",
+              fontSize: 12, fontWeight: 600, cursor: "pointer",
+              transition: "background 0.15s, color 0.15s",
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       {/* GLB input */}
       <div style={{ display: "flex", gap: 8 }}>
