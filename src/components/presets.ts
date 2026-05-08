@@ -1,10 +1,10 @@
 export const METAL_PRESETS = {
-  "Yellow Gold 22K": { color: "#F5C518", metalness: 1, roughness: 0.25 },
-  "Yellow Gold 18K": { color: "#E8B84B", metalness: 1, roughness: 0.28 },
-  "Rose Gold 18K":   { color: "#E8A090", metalness: 1, roughness: 0.28 },
-  "White Gold 18K":  { color: "#E8E8E8", metalness: 1, roughness: 0.20 },
-  "Platinum":        { color: "#E0E0E8", metalness: 1, roughness: 0.15 },
-  "Silver":          { color: "#C0C0C0", metalness: 1, roughness: 0.30 },
+  "Yellow Gold 22K": { color: "#F5C518", metalness: 1, roughness: 0.25, iridescence: 0 },
+  "Yellow Gold 18K": { color: "#E8B84B", metalness: 1, roughness: 0.28, iridescence: 0 },
+  "Rose Gold 18K":   { color: "#E8A090", metalness: 1, roughness: 0.28, iridescence: 0 },
+  "White Gold 18K":  { color: "#E8E8E8", metalness: 1, roughness: 0.20, iridescence: 0.2  },
+  "Platinum":        { color: "#E0E0E8", metalness: 1, roughness: 0.15, iridescence: 0.25 },
+  "Silver":          { color: "#C0C0C0", metalness: 1, roughness: 0.30, iridescence: 0 },
 } as const;
 
 export const STONE_PRESETS = {

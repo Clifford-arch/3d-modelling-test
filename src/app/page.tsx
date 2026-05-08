@@ -42,7 +42,7 @@ export default function Page() {
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#f0f0f0",
+      minHeight: "100vh", background: "radial-gradient(ellipse at 50% 35%, #ffffff 0%, #e4e4e4 100%)",
       display: "flex", flexDirection: "column", alignItems: "center",
       justifyContent: "center", padding: 24, gap: 16,
     }}>

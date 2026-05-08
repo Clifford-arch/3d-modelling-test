@@ -2,7 +2,8 @@
 
 import { Canvas } from "@react-three/fiber";
 import { Environment, useGLTF, MeshReflectorMaterial } from "@react-three/drei";
-import { EffectComposer, Bloom, SMAA, SSAO, Vignette } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, SMAA, SSAO, Vignette, ChromaticAberration } from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { MetalPreset, StonePreset } from "./presets";
@@ -17,7 +18,10 @@ const STONE_KEYWORDS = [
 // Photo Studio 01 — clean diffuse product photography lighting (Poly Haven)
 const HDRI_URL = "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/photo_studio_01_1k.hdr";
 
-const DEFAULT_POSITION: [number, number, number] = [0, 1, 2.8];
+// Constant to avoid re-creating a Vector2 on every render
+const ABERRATION_OFFSET = new THREE.Vector2(0.0008, 0.0008);
+
+const DEFAULT_POSITION: [number, number, number] = [0, 0.8, 2.2];
 
 function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: StonePreset }) {
   const { scene } = useGLTF(url);
@@ -51,7 +55,7 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
           clearcoat: 1.0,
           clearcoatRoughness: 0.02,
           attenuationColor: new THREE.Color(stone.attenuationColor),
-          attenuationDistance: 0.15,
+          attenuationDistance: 0.5,
           iridescence: 0.3,
           iridescenceIOR: 1.5,
           flatShading: true,
@@ -60,11 +64,17 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
           dispersion: stone.dispersion,
         });
       } else {
-        node.material = new THREE.MeshStandardMaterial({
+        // MeshPhysicalMaterial: enables iridescence (white gold, platinum) and tinted specular
+        node.material = new THREE.MeshPhysicalMaterial({
           color: new THREE.Color(metal.color),
           metalness: metal.metalness,
           roughness: metal.roughness * 0.3,
           envMapIntensity: 2.5,
+          specularIntensity: 0.6,
+          specularColor: new THREE.Color(metal.color),
+          iridescence: metal.iridescence,
+          iridescenceIOR: 2.0,
+          iridescenceThicknessRange: [100, 400],
         });
       }
 
@@ -145,7 +155,7 @@ export default function EnhancedViewer({ modelUrl, metal, stone }: Props) {
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%", height: "100%" }}>
       <Canvas
-        camera={{ position: DEFAULT_POSITION, fov: 45 }}
+        camera={{ position: DEFAULT_POSITION, fov: 35 }}
         shadows
         resize={{ debounce: 50 }}
         gl={{
@@ -160,6 +170,8 @@ export default function EnhancedViewer({ modelUrl, metal, stone }: Props) {
         <directionalLight position={[3, 5, 4]} intensity={4} castShadow color="#fff8f0" />
         <directionalLight position={[-4, 2, 3]} intensity={1.5} color="#b0ccff" />
         <directionalLight position={[0, 3, -5]} intensity={2} color="#ffffff" />
+        {/* Fibre-optic ring light above the piece — creates point sparkle on facets */}
+        <pointLight position={[0, 2.5, 0.5]} intensity={8} distance={6} decay={2} color="#ffffff" />
 
         <Suspense fallback={null}>
           <Model url={modelUrl} metal={metal} stone={stone} />
@@ -193,6 +205,7 @@ export default function EnhancedViewer({ modelUrl, metal, stone }: Props) {
           <SSAO radius={0.05} intensity={1.5} luminanceInfluence={0.5} />
           <Vignette eskil={false} offset={0.5} darkness={0.6} />
           <Bloom intensity={0.15} luminanceThreshold={0.92} luminanceSmoothing={0.9} mipmapBlur />
+          <ChromaticAberration blendFunction={BlendFunction.NORMAL} offset={ABERRATION_OFFSET} />
         </EffectComposer>
       </Canvas>
       <ViewerToolbar
@@ -202,7 +215,6 @@ export default function EnhancedViewer({ modelUrl, metal, stone }: Props) {
         onPreset={setTargetPosition}
         onReset={handleReset}
         onToggleFullscreen={handleToggleFullscreen}
-        defaultPosition={DEFAULT_POSITION}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 const PRESETS: { label: string; pos: [number, number, number] }[] = [
-  { label: "Front", pos: [0, 0, 3] },
+  { label: "Front", pos: [0, 0, 2.4] },
   { label: "3/4",   pos: [1.8, 1.5, 2.2] },
   { label: "Side",  pos: [3, 0, 0] },
   { label: "Top",   pos: [0, 2.8, 0.5] },
@@ -98,7 +98,6 @@ interface ViewerToolbarProps {
   onPreset: (pos: [number, number, number]) => void;
   onReset: () => void;
   onToggleFullscreen: () => void;
-  defaultPosition: [number, number, number];
 }
 
 export default function ViewerToolbar({
@@ -108,7 +107,6 @@ export default function ViewerToolbar({
   onPreset,
   onReset,
   onToggleFullscreen,
-  defaultPosition,
 }: ViewerToolbarProps) {
   const canFullscreen = typeof document !== "undefined" && !!document.fullscreenEnabled;
 

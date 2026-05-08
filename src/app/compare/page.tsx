@@ -42,7 +42,7 @@ export default function ComparePage() {
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#111",
+      minHeight: "100vh", background: "radial-gradient(ellipse at 50% 35%, #1e1e2e 0%, #0a0a0a 100%)",
       display: "flex", flexDirection: "column", alignItems: "center",
       justifyContent: "center", padding: 24, gap: 16,
     }}>
