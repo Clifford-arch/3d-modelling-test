@@ -109,7 +109,6 @@ interface Props {
 export default function JewelryViewer({ modelUrl, metal, stone }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [targetPosition, setTargetPosition] = useState<[number, number, number] | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const wasPlayingRef = useRef(true);
 
@@ -133,14 +132,6 @@ export default function JewelryViewer({ modelUrl, metal, stone }: Props) {
       wasPlayingRef.current = !p;
       return !p;
     });
-  }, []);
-
-  const handleAnimationComplete = useCallback(() => {
-    setTargetPosition(null);
-  }, []);
-
-  const handleReset = useCallback(() => {
-    setTargetPosition(DEFAULT_POSITION);
   }, []);
 
   const handleToggleFullscreen = useCallback(() => {
@@ -178,8 +169,6 @@ export default function JewelryViewer({ modelUrl, metal, stone }: Props) {
         </Suspense>
         <SceneControls
           isPlaying={isPlaying}
-          targetPosition={targetPosition}
-          onAnimationComplete={handleAnimationComplete}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         />
@@ -195,8 +184,6 @@ export default function JewelryViewer({ modelUrl, metal, stone }: Props) {
         isPlaying={isPlaying}
         isFullscreen={isFullscreen}
         onTogglePlay={handleTogglePlay}
-        onPreset={setTargetPosition}
-        onReset={handleReset}
         onToggleFullscreen={handleToggleFullscreen}
       />
     </div>

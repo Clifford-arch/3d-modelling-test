@@ -1,12 +1,5 @@
 "use client";
 
-const PRESETS: { label: string; pos: [number, number, number] }[] = [
-  { label: "Front", pos: [0, 0, 2.4] },
-  { label: "3/4",   pos: [1.8, 1.5, 2.2] },
-  { label: "Side",  pos: [3, 0, 0] },
-  { label: "Top",   pos: [0, 2.8, 0.5] },
-];
-
 const BTN_BASE: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
@@ -28,17 +21,6 @@ const ICON_BTN: React.CSSProperties = {
   borderRadius: "50%",
   padding: 0,
   flexShrink: 0,
-};
-
-const PRESET_BTN: React.CSSProperties = {
-  ...BTN_BASE,
-  height: 30,
-  padding: "0 10px",
-  borderRadius: 15,
-  fontSize: 11,
-  fontWeight: 600,
-  letterSpacing: "0.03em",
-  whiteSpace: "nowrap",
 };
 
 const DIVIDER: React.CSSProperties = {
@@ -66,15 +48,6 @@ function PauseIcon() {
   );
 }
 
-function ResetIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 12a9 9 0 1 0 9-9 9.14 9.14 0 0 0-6.36 2.64L3 3" />
-      <polyline points="3 3 3 9 9 9" />
-    </svg>
-  );
-}
-
 function FullscreenEnterIcon() {
   return (
     <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -95,8 +68,6 @@ interface ViewerToolbarProps {
   isPlaying: boolean;
   isFullscreen: boolean;
   onTogglePlay: () => void;
-  onPreset: (pos: [number, number, number]) => void;
-  onReset: () => void;
   onToggleFullscreen: () => void;
 }
 
@@ -104,8 +75,6 @@ export default function ViewerToolbar({
   isPlaying,
   isFullscreen,
   onTogglePlay,
-  onPreset,
-  onReset,
   onToggleFullscreen,
 }: ViewerToolbarProps) {
   const canFullscreen = typeof document !== "undefined" && !!document.fullscreenEnabled;
@@ -134,29 +103,6 @@ export default function ViewerToolbar({
       </button>
 
       <div style={DIVIDER} />
-
-      {/* Camera presets */}
-      {PRESETS.map(({ label, pos }) => (
-        <button
-          key={label}
-          style={{ ...PRESET_BTN, pointerEvents: "all" }}
-          title={`${label} view`}
-          onClick={() => onPreset(pos)}
-        >
-          {label}
-        </button>
-      ))}
-
-      <div style={DIVIDER} />
-
-      {/* Reset view */}
-      <button
-        style={{ ...ICON_BTN, pointerEvents: "all" }}
-        title="Reset view"
-        onClick={onReset}
-      >
-        <ResetIcon />
-      </button>
 
       {/* Fullscreen (only if supported) */}
       {canFullscreen && (
