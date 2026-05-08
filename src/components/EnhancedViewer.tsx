@@ -64,14 +64,15 @@ function Model({ url, metal, stone }: { url: string; metal: MetalPreset; stone: 
           dispersion: stone.dispersion,
         });
       } else {
-        // MeshPhysicalMaterial: enables iridescence (white gold, platinum) and tinted specular
         node.material = new THREE.MeshPhysicalMaterial({
           color: new THREE.Color(metal.color),
           metalness: metal.metalness,
-          roughness: metal.roughness * 0.3,
-          envMapIntensity: 2.5,
-          specularIntensity: 0.6,
-          specularColor: new THREE.Color(metal.color),
+          roughness: metal.roughness * 0.4,
+          envMapIntensity: 2.0,
+          // Clearcoat simulates the lacquer/polish on real jewelry
+          clearcoat: 0.12,
+          clearcoatRoughness: 0.08,
+          // Iridescence: subtle rainbow on white gold / platinum only
           iridescence: metal.iridescence,
           iridescenceIOR: 2.0,
           iridescenceThicknessRange: [100, 400],
@@ -170,8 +171,8 @@ export default function EnhancedViewer({ modelUrl, metal, stone }: Props) {
         <directionalLight position={[3, 5, 4]} intensity={4} castShadow color="#fff8f0" />
         <directionalLight position={[-4, 2, 3]} intensity={1.5} color="#b0ccff" />
         <directionalLight position={[0, 3, -5]} intensity={2} color="#ffffff" />
-        {/* Fibre-optic ring light above the piece — creates point sparkle on facets */}
-        <pointLight position={[0, 2.5, 0.5]} intensity={8} distance={6} decay={2} color="#ffffff" />
+        {/* Soft overhead accent — adds specular catch-lights without harsh hotspot */}
+        <pointLight position={[0, 2.5, 0.5]} intensity={2} distance={6} decay={2} color="#fff8f0" />
 
         <Suspense fallback={null}>
           <Model url={modelUrl} metal={metal} stone={stone} />
